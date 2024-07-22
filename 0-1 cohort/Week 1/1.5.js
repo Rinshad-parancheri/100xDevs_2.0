@@ -111,13 +111,14 @@ for(let i = 0; i<10; i++){
 console.log(a);
 
 
-//Promises
+//Promises - syntactical sugar that make the code more readable and Promises still uses callback under the hood
 
 //Ugly way to create async functions of our own (without using Promises)
 const fs = require('fs');
 // my own asynchronous function
 function kiratsReadFile(cb) {
   fs.readFile("a.txt", "utf-8", function(err, data) {
+    //console.log('second');
     cb(data);
   });
 }
@@ -125,19 +126,159 @@ function onDone(data) {
   console.log(data);
 }
 kiratsReadFile(onDone);
+//console.log('first');
 
 //Cleaner way (by using Promises) //there are no callbacks when we use Promise as the reason to introduce promise is to get rid of callbacks because callbacks are an ugly way to write asynchronous code
 const fs = require('fs');
 // my own asynchronous function
 function kiratsReadFile() {
+  // console.log('inside kiratReadFile function before Promise');
   return new Promise(function(resolve) {
+    // console.log('inside promise before readFile');
     fs.readFile("a.txt", "utf-8", function(err, data) {
-      resolve(data);
+      // console.log('before resolve');
+      resolve(data); //try - resolve(data+1); or resolve(data+' 1');
+      // console.log('after resolve');
     });
   })
 }
 // callback function to call
-function onDone(data) {
-  console.log(data)
+function onDone(Data) {
+  // console.log('before Data');
+  console.log(Data);
+  //console.log(Data + ' 1998');
 }
 kiratsReadFile().then(onDone);
+// console.log('last');
+
+
+//Way to initialize a Promise
+var a1 = new Promise();//❌
+var a2 = new Promise(function());//❌
+var a3 = new Promise(function(resolve){});//✅
+var a4 = new Promise(function(Fighter){});//✅
+
+
+//Promise at a high level can have 3 states - pending, resolved and rejected
+var d =  new Promise(function(resolve) {
+  setTimeout(function(){
+    //console.log('data added');
+    resolve('bittu');
+  },2000);
+});
+
+function callback(){
+  console.log(d);//promise is in resolved state by this point of time
+}
+
+//console.log('no data');
+console.log(d); //value empty as resolve in Promise is still in progress (will take 2 sec) //promise is still in pending state at this point of time
+d.then(callback);
+
+
+//Example of Promise that immediately resolves
+let P = new Promise(function(resolve){
+  //console.log('before');
+  resolve('Hanuman'); //this marks the point where the async operation (represented by the Promise) is considered complete, and the resolved value/data "Hanuman" is passed to the .then() method
+  //console.log('after')
+});
+
+P.then(function(){ //.then gets called whenever the async function resolves
+  console.log(P);
+});
+//or can write function outside then separately like this as well
+// function extra(){
+//   console.log(P);
+// }
+// P.then(extra);
+
+
+//Example 2 (get value stored in resolve in output)
+let P2 = new Promise(function(resolve){
+  resolve('Hanuman');
+});
+
+function extra2(value){
+  console.log(value);
+}
+
+P2.then(extra2);
+//or can also write directly as 
+// P2.then(function(value){
+//   console.log(value);
+// });
+
+
+//Async Await - syntactic sugar, still uses callbacks/promises under the hood
+
+//with only async
+function kiratsAsyncFunction() {
+  let p = new Promise(function(resolve) {
+    // do some async logic here
+    setTimeout(function(){
+      resolve("hi there!")
+    },2000)
+  });
+  return p;
+}
+
+async function main() {
+  let value = kiratsAsyncFunction();
+  setTimeout(function(){
+    console.log(value);
+  },3000)
+}
+
+main();
+
+//with async and await
+function kiratsAsyncFunction() {
+  let p = new Promise(function(resolve) {
+    // do some async logic here
+    setTimeout(function(){
+      resolve("hi there!")
+    },2000)
+  });
+  return p;
+}
+
+async function main() {
+  //no callbacks, no .then syntax like we used in promises
+  let value = await kiratsAsyncFunction(); 
+  console.log('Radhe Radhe Shyam se Milade'); // will execute only after the await expression has resolved
+  console.log(value);
+}
+
+main();
+console.log('Kalki');
+
+//similar example using .then
+// function kiratsAsyncFunction() {
+//   let p = new Promise(function(resolve) {
+//     // do some async logic here
+//     setTimeout(function(){
+//       resolve("hi there!")
+//     },2000)
+//   });
+//   return p;
+// }
+
+// function main() {
+//   let value = kiratsAsyncFunction().then(function(value){
+//     console.log(value);
+//   });
+//   console.log('Radhe Radhe Shyam se Milade'); 
+// }
+
+// main();
+// console.log('Kalki');
+
+//Note
+//let value = kiratsAsyncFunction(); //if you don't write await - will get back the whole promise itself
+//let value = await kiratsAsyncFunction(); //by writing await - will get back the resolved value stored inside the promise
+
+
+
+
+
+
